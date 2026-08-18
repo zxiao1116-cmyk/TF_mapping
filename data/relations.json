@@ -1,0 +1,625 @@
+[
+  {
+    "from": "TF_03",
+    "to": "TF_01",
+    "type": "援助",
+    "year": 1966,
+    "desc": ""
+  },
+  {
+    "from": "TF_04",
+    "to": "TF_01",
+    "type": "援助",
+    "year": 1966,
+    "desc": ""
+  },
+  {
+    "from": "TF_01",
+    "to": "TF_02",
+    "type": "搬迁",
+    "year": 1993,
+    "desc": ""
+  },
+  {
+    "from": "TF_02",
+    "to": "TF_05",
+    "type": "转设",
+    "year": 2003,
+    "desc": ""
+  },
+  {
+    "from": "TF_08",
+    "to": "TF_06",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_09",
+    "to": "TF_06",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_06",
+    "to": "TF_07",
+    "type": "搬迁",
+    "year": 1989,
+    "desc": ""
+  },
+  {
+    "from": "TF_11",
+    "to": "TF_10",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_12",
+    "to": "TF_10",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_14",
+    "to": "TF_15",
+    "type": "援助",
+    "year": 1966,
+    "desc": ""
+  },
+  {
+    "from": "TF_15",
+    "to": "TF_13",
+    "type": "搬迁",
+    "year": 1969,
+    "desc": ""
+  },
+  {
+    "from": "TF_17",
+    "to": "TF_16",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_16",
+    "to": "TF_18",
+    "type": "转设",
+    "year": 2006,
+    "desc": ""
+  },
+  {
+    "from": "TF_19",
+    "to": "TF_20",
+    "type": "搬迁",
+    "year": 2013,
+    "desc": ""
+  },
+  {
+    "from": "TF_23",
+    "to": "TF_21",
+    "type": "援助",
+    "year": 1964,
+    "desc": ""
+  },
+  {
+    "from": "TF_21",
+    "to": "TF_22",
+    "type": "搬迁",
+    "year": 2003,
+    "desc": ""
+  },
+  {
+    "from": "TF_26",
+    "to": "TF_24",
+    "type": "援助",
+    "year": 1966,
+    "desc": ""
+  },
+  {
+    "from": "TF_27",
+    "to": "TF_24",
+    "type": "援助",
+    "year": 1966,
+    "desc": ""
+  },
+  {
+    "from": "TF_28",
+    "to": "TF_24",
+    "type": "援助",
+    "year": 1966,
+    "desc": ""
+  },
+  {
+    "from": "TF_29",
+    "to": "TF_24",
+    "type": "援助",
+    "year": 1966,
+    "desc": ""
+  },
+  {
+    "from": "TF_24",
+    "to": "TF_25",
+    "type": "搬迁",
+    "year": 2012,
+    "desc": ""
+  },
+  {
+    "from": "TF_33",
+    "to": "TF_31",
+    "type": "援助",
+    "year": 1958,
+    "desc": ""
+  },
+  {
+    "from": "TF_34",
+    "to": "TF_31",
+    "type": "援助",
+    "year": 1966,
+    "desc": ""
+  },
+  {
+    "from": "TF_31",
+    "to": "TF_32",
+    "type": "搬迁",
+    "year": 2004,
+    "desc": ""
+  },
+  {
+    "from": "TF_37",
+    "to": "TF_35",
+    "type": "援助",
+    "year": 1966,
+    "desc": ""
+  },
+  {
+    "from": "TF_35",
+    "to": "TF_36",
+    "type": "搬迁",
+    "year": 2005,
+    "desc": ""
+  },
+  {
+    "from": "TF_40",
+    "to": "TF_38",
+    "type": "援助",
+    "year": 1966,
+    "desc": ""
+  },
+  {
+    "from": "TF_41",
+    "to": "TF_38",
+    "type": "援助",
+    "year": 1966,
+    "desc": ""
+  },
+  {
+    "from": "TF_38",
+    "to": "TF_39",
+    "type": "搬迁",
+    "year": 2005,
+    "desc": ""
+  },
+  {
+    "from": "TF_44",
+    "to": "TF_42",
+    "type": "援助",
+    "year": 1964,
+    "desc": ""
+  },
+  {
+    "from": "TF_42",
+    "to": "TF_43",
+    "type": "搬迁",
+    "year": 2011,
+    "desc": ""
+  },
+  {
+    "from": "TF_50",
+    "to": "TF_42",
+    "type": "援助",
+    "year": 1964,
+    "desc": ""
+  },
+  {
+    "from": "TF_50",
+    "to": "TF_45",
+    "type": "援助",
+    "year": 1964,
+    "desc": ""
+  },
+  {
+    "from": "TF_47",
+    "to": "TF_45",
+    "type": "援助",
+    "year": 1964,
+    "desc": ""
+  },
+  {
+    "from": "TF_45",
+    "to": "TF_46",
+    "type": "搬迁",
+    "year": 2006,
+    "desc": ""
+  },
+  {
+    "from": "TF_49",
+    "to": "TF_48",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_50",
+    "to": "TF_51",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_50",
+    "to": "TF_52",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_50",
+    "to": "TF_53",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_54",
+    "to": "TF_55",
+    "type": "搬迁",
+    "year": 2006,
+    "desc": ""
+  },
+  {
+    "from": "TF_54",
+    "to": "TF_56",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_54",
+    "to": "TF_57",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_59",
+    "to": "TF_60",
+    "type": "搬迁",
+    "year": 1994,
+    "desc": ""
+  },
+  {
+    "from": "TF_61",
+    "to": "TF_62",
+    "type": "搬迁",
+    "year": 1996,
+    "desc": ""
+  },
+  {
+    "from": "TF_64",
+    "to": "TF_65",
+    "type": "搬迁",
+    "year": 1999,
+    "desc": ""
+  },
+  {
+    "from": "TF_67",
+    "to": "TF_66",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_68",
+    "to": "TF_66",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_69",
+    "to": "TF_66",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_70",
+    "to": "TF_71",
+    "type": "搬迁",
+    "year": 1988,
+    "desc": ""
+  },
+  {
+    "from": "TF_71",
+    "to": "TF_72",
+    "type": "搬迁",
+    "year": 2006,
+    "desc": ""
+  },
+  {
+    "from": "TF_73",
+    "to": "TF_74",
+    "type": "转设",
+    "year": 2005,
+    "desc": ""
+  },
+  {
+    "from": "TF_75",
+    "to": "TF_76",
+    "type": "搬迁",
+    "year": 2003,
+    "desc": ""
+  },
+  {
+    "from": "TF_77",
+    "to": "TF_78",
+    "type": "搬迁",
+    "year": 1998,
+    "desc": ""
+  },
+  {
+    "from": "TF_79",
+    "to": "TF_80",
+    "type": "搬迁",
+    "year": 1997,
+    "desc": ""
+  },
+  {
+    "from": "TF_81",
+    "to": "TF_82",
+    "type": "搬迁",
+    "year": 1996,
+    "desc": ""
+  },
+  {
+    "from": "TF_83",
+    "to": "TF_81",
+    "type": "援助",
+    "year": 1966,
+    "desc": ""
+  },
+  {
+    "from": "TF_86",
+    "to": "TF_84",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_84",
+    "to": "TF_85",
+    "type": "搬迁",
+    "year": 1994,
+    "desc": ""
+  },
+  {
+    "from": "TF_87",
+    "to": "TF_88",
+    "type": "搬迁",
+    "year": 1997,
+    "desc": ""
+  },
+  {
+    "from": "TF_91",
+    "to": "TF_89",
+    "type": "援助",
+    "year": 1966,
+    "desc": ""
+  },
+  {
+    "from": "TF_89",
+    "to": "TF_90",
+    "type": "搬迁",
+    "year": 2000,
+    "desc": ""
+  },
+  {
+    "from": "TF_92",
+    "to": "TF_93",
+    "type": "搬迁",
+    "year": 1996,
+    "desc": ""
+  },
+  {
+    "from": "TF_96",
+    "to": "TF_94",
+    "type": "援助",
+    "year": 1966,
+    "desc": ""
+  },
+  {
+    "from": "TF_94",
+    "to": "TF_95",
+    "type": "搬迁",
+    "year": 1992,
+    "desc": ""
+  },
+  {
+    "from": "TF_97",
+    "to": "TF_10",
+    "type": "转设",
+    "year": 1986,
+    "desc": ""
+  },
+  {
+    "from": "TF_98",
+    "to": "TF_99",
+    "type": "搬迁",
+    "year": 1990,
+    "desc": ""
+  },
+  {
+    "from": "TF_100",
+    "to": "TF_101",
+    "type": "搬迁",
+    "year": 1985,
+    "desc": ""
+  },
+  {
+    "from": "TF_102",
+    "to": "TF_103",
+    "type": "搬迁",
+    "year": 1999,
+    "desc": ""
+  },
+  {
+    "from": "TF_104",
+    "to": "TF_102",
+    "type": "转设",
+    "year": 1992,
+    "desc": ""
+  },
+  {
+    "from": "TF_105",
+    "to": "TF_106",
+    "type": "搬迁",
+    "year": 1987,
+    "desc": ""
+  },
+  {
+    "from": "TF_107",
+    "to": "TF_108",
+    "type": "搬迁",
+    "year": 2020,
+    "desc": ""
+  },
+  {
+    "from": "TF_109",
+    "to": "TF_110",
+    "type": "援助",
+    "year": 1970,
+    "desc": ""
+  },
+  {
+    "from": "TF_111",
+    "to": "TF_109",
+    "type": "援助",
+    "year": 1970,
+    "desc": ""
+  },
+  {
+    "from": "TF_113",
+    "to": "TF_112",
+    "type": "援助",
+    "year": 1958,
+    "desc": ""
+  },
+  {
+    "from": "TF_112",
+    "to": "TF_114",
+    "type": "援助",
+    "year": 1958,
+    "desc": ""
+  },
+  {
+    "from": "TF_115",
+    "to": "TF_116",
+    "type": "援助",
+    "year": 1970,
+    "desc": ""
+  },
+  {
+    "from": "TF_119",
+    "to": "TF_117",
+    "type": "援助",
+    "year": 1973,
+    "desc": ""
+  },
+  {
+    "from": "TF_117",
+    "to": "TF_118",
+    "type": "搬迁",
+    "year": 1988,
+    "desc": ""
+  },
+  {
+    "from": "TF_120",
+    "to": "TF_121",
+    "type": "搬迁",
+    "year": 1985,
+    "desc": ""
+  },
+  {
+    "from": "TF_122",
+    "to": "TF_123",
+    "type": "搬迁",
+    "year": 1985,
+    "desc": ""
+  },
+  {
+    "from": "TF_124",
+    "to": "TF_120",
+    "type": "援助",
+    "year": 1971,
+    "desc": ""
+  },
+  {
+    "from": "TF_124",
+    "to": "TF_122",
+    "type": "援助",
+    "year": 1969,
+    "desc": ""
+  },
+  {
+    "from": "TF_125",
+    "to": "TF_126",
+    "type": "搬迁",
+    "year": 1984,
+    "desc": ""
+  },
+  {
+    "from": "TF_127",
+    "to": "TF_128",
+    "type": "搬迁",
+    "year": 1990,
+    "desc": ""
+  },
+  {
+    "from": "TF_129",
+    "to": "TF_130",
+    "type": "搬迁",
+    "year": 1992,
+    "desc": ""
+  },
+  {
+    "from": "TF_131",
+    "to": "TF_132",
+    "type": "搬迁",
+    "year": 1996,
+    "desc": ""
+  },
+  {
+    "from": "TF_133",
+    "to": "TF_134",
+    "type": "搬迁",
+    "year": 1997,
+    "desc": ""
+  },
+  {
+    "from": "TF_137",
+    "to": "TF_135",
+    "type": "援助",
+    "year": 1965,
+    "desc": ""
+  },
+  {
+    "from": "TF_135",
+    "to": "TF_136",
+    "type": "搬迁",
+    "year": 2002,
+    "desc": ""
+  }
+]

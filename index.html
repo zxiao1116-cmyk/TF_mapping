@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>三线建设工业网络地图</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #f5f0e8;
+      font-family: 'Noto Sans SC', sans-serif;
+      color: #3a2e1e;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ══ Banner ══ */
+    #banner {
+      flex-shrink: 0;
+      height: 120px;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+    #banner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: left center;
+      display: block;
+    }
+    #bannerPlaceholder {
+      position: absolute;
+      inset: 0;
+      background: #7a2e14;
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 20px;
+    }
+    #bannerPlaceholder .ph-en {
+      font-family: 'Noto Sans SC', sans-serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: #f0e0d0;
+      letter-spacing: 0.1em;
+    }
+    #bannerPlaceholder .ph-zh {
+      font-family: 'Noto Sans SC', sans-serif;
+      font-size: 18px;
+      color: rgba(255,255,255,0.75);
+      letter-spacing: 0.2em;
+    }
+    #bannerPlaceholder .ph-divider {
+      width: 1px;
+      height: 36px;
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* ══ 右上角控制按钮（语言 / 关于）══ */
+    #bannerControls {
+      position: absolute;
+      bottom: 14px;
+      right: 20px;
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+    }
+    .banner-btn {
+      width: 64px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f0e8;
+      border: 1px solid #c8bfa8;
+      color: #3a2e1e;
+      font-family: 'Noto Sans SC', sans-serif;
+      font-size: 11.5px;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* ══ 关于弹窗 ══ */
+    #aboutOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      align-items: center;
+      justify-content: center;
+    }
+    #aboutModal {
+      position: relative;
+      width: 460px;
+      max-width: 88vw;
+      max-height: 80vh;
+      overflow-y: auto;
+      background: #f5f0e8;
+      border: 1px solid #c8bfa8;
+      padding: 30px 32px 26px;
+    }
+    #aboutClose {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      line-height: 1;
+      color: #3a2e1e;
+      cursor: pointer;
+      padding: 4px 8px;
+      font-family: 'Noto Sans SC', sans-serif;
+    }
+    #aboutTitle {
+      font-size: 16px;
+      font-weight: 500;
+      color: #2a1e0e;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #c8bfa8;
+      letter-spacing: 0.04em;
+    }
+    #aboutBody {
+      font-size: 12.5px;
+      line-height: 1.9;
+      color: #3a2e1e;
+      white-space: pre-line;
+    }
+
+    /* ══ 主体 ══ */
+    #main {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    #map { position: absolute; inset: 0; }
+    .leaflet-tile { filter: sepia(0.22) brightness(1.04) saturate(0.82); }
+
+    /* 节点柔化过渡 + 选中呼吸光晕 */
+    .leaflet-interactive {
+      transition: r 0.18s ease, opacity 0.18s ease, stroke-width 0.18s ease;
+    }
+    @keyframes markerPulse {
+      0%, 100% { filter: drop-shadow(0 0 3px rgba(122,46,20,0.55)); }
+      50%      { filter: drop-shadow(0 0 7px rgba(122,46,20,0.85)); }
+    }
+    .marker-selected-glow {
+      animation: markerPulse 2.2s ease-in-out infinite;
+    }
+
+    /* 加载提示 */
+    #loadingMsg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      background: rgba(245,240,232,0.85);
+      font-size: 13px;
+      color: #8a7a5a;
+      letter-spacing: 0.1em;
+    }
+
+    /* ══ 控制面板 ══ */
+    #panel {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      z-index: 1000;
+      width: 258px;
+      background: #f5f0e8;
+      border: 1px solid #c8bfa8;
+      border-radius: 3px;
+      padding: 16px 18px;
+      font-family: 'Poppins', 'Noto Sans SC', sans-serif;
+      font-weight: 500;
+    }
+
+    .section-label {
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      color: #2a1e0e;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    #searchBox {
+      width: 100%;
+      background: #f5f0e8;
+      border: 1px solid #c0b090;
+      border-radius: 2px;
+      color: #2a1e0e;
+      font-family: 'Poppins', 'Noto Sans SC', sans-serif;
+      font-size: 13.5px;
+      padding: 7px 10px;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 6px;
+    }
+    #searchBox:focus { border-color: #7a2e14; }
+    #searchBox::placeholder { color: #7a6a4a; }
+
+    #searchResults {
+      background: #f5f0e8;
+      border: 1px solid #c0b090;
+      border-radius: 2px;
+      max-height: 120px;
+      overflow-y: auto;
+      display: none;
+      margin-bottom: 6px;
+    }
+    .search-item {
+      padding: 6px 10px;
+      font-size: 13px;
+      color: #2a1e0e;
+      cursor: pointer;
+      border-bottom: 1px solid #e0d8c8;
+      transition: background 0.12s;
+    }
+    .search-item:last-child { border-bottom: none; }
+    .search-item:hover { background: #e8e0cc; }
+
+    #selectedTags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 12px;
+      min-height: 2px;
+    }
+    .tag {
+      background: #e0d4b8;
+      border: 1px solid #b09870;
+      border-radius: 2px;
+      font-size: 12px;
+      padding: 3px 7px;
+      color: #2a1e0e;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .tag-remove { cursor: pointer; color: #6a4a20; font-size: 13px; line-height: 1; }
+    .tag-remove:hover { color: #7a2e14; }
+
+    .legend-section { margin-bottom: 10px; }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 7px;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+      color: #2a1e0e;
+      transition: opacity 0.2s;
+    }
+    .legend-item.disabled { opacity: 0.28; }
+
+    .legend-line-wrap {
+      width: 30px; height: 10px;
+      position: relative; flex-shrink: 0;
+    }
+    .legend-line-bg {
+      position: absolute;
+      top: 4px; left: 0; right: 0;
+      height: 2px; border-radius: 1px;
+    }
+    .legend-dot-anim {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      position: absolute; top: 2px;
+      animation: legendFlow 2s linear infinite;
+    }
+    @keyframes legendFlow {
+      0%   { left: 0%; opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { left: calc(100% - 6px); opacity: 0; }
+    }
+
+    #showAllBtn {
+      width: 100%;
+      background: transparent;
+      border: 1px solid #c0b090;
+      color: #2a1e0e;
+      font-family: 'Poppins', 'Noto Sans SC', sans-serif;
+      font-size: 12.5px;
+      padding: 6px 8px;
+      border-radius: 2px;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      transition: all 0.2s;
+      margin-bottom: 8px;
+    }
+    #showAllBtn:hover { border-color: #7a2e14; color: #3a1008; }
+    #showAllBtn.active { background: #e8d0c0; border-color: #7a2e14; color: #3a1008; }
+
+    .hint { font-size: 11px; color: #5a4a30; line-height: 1.75; }
+
+    .leaflet-bottom.leaflet-right { bottom: 70px !important; }
+
+    /* ══ 时间轴 ══ */
+    #timeBar {
+      flex-shrink: 0;
+      height: 62px;
+      background: #f5f0e8;
+      border-top: 1px solid rgba(200,191,168,0.75);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 18px;
+      z-index: 1000;
+      font-family: 'Poppins', 'Noto Sans SC', sans-serif;
+    }
+    #yearLabel {
+      font-size: 19px;
+      letter-spacing: 0.14em;
+      color: #8a7a5a;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    #yearDisplay {
+      font-size: 22px;
+      font-weight: 500;
+      color: #7a2e14;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-width: 52px;
+      text-align: right;
+    }
+    #sliderWrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+    }
+    #yearSlider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 2px;
+      background: #d0c8b8;
+      border-radius: 1px;
+      outline: none;
+      cursor: pointer;
+    }
+    #yearSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 13px; height: 13px;
+      background: #7a2e14;
+      border-radius: 50%;
+      border: 2px solid #f5f0e8;
+      box-shadow: 0 1px 5px rgba(90,20,5,0.3);
+      cursor: pointer;
+    }
+    #yearSlider::-moz-range-thumb {
+      width: 13px; height: 13px;
+      background: #7a2e14;
+      border-radius: 50%;
+      border: 2px solid #f5f0e8;
+      cursor: pointer;
+    }
+    #yearTicks {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 1px;
+    }
+    .tick {
+      font-size: 9px;
+      font-weight: 400;
+      color: #a09070;
+      letter-spacing: 0.02em;
+      text-align: center;
+      flex: 1;
+    }
+
+    /* ══ 弹窗 ══ */
+    .leaflet-popup-content-wrapper {
+      background: #f5f0e8 !important;
+      border: 1px solid #c0b090 !important;
+      border-radius: 3px !important;
+      color: #2a1e0e !important;
+      box-shadow: 2px 4px 18px rgba(58,46,30,0.18) !important;
+    }
+    .leaflet-popup-tip { background: #f5f0e8 !important; }
+    .leaflet-popup-close-button {
+      color: #8a7a5a !important;
+      top: 8px !important; right: 10px !important;
+    }
+    .leaflet-popup-content { margin: 14px 16px !important; min-width: 190px; }
+
+    .popup-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #2a1e0e;
+      margin-bottom: 9px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #d0c8b0;
+      letter-spacing: 0.04em;
+    }
+    .popup-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 3px 10px;
+      font-size: 11.5px;
+      margin-bottom: 9px;
+    }
+    .popup-label { color: #9a8a6a; }
+    .popup-value { color: #2a1e0e; }
+    .popup-desc {
+      font-size: 11.5px;
+      color: #5a4a2e;
+      line-height: 1.75;
+      padding-top: 8px;
+      border-top: 1px solid #d0c8b0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Banner -->
+<div id="banner">
+  <img src="banner.jpg" alt="Mapping Third Front 图绘三线"
+       onerror="this.style.display='none'; document.getElementById('bannerPlaceholder').style.display='flex';">
+  <div id="bannerPlaceholder" style="display:none;">
+    <span class="ph-en">Mapping Third Front</span>
+    <div class="ph-divider"></div>
+    <span class="ph-zh">图绘三线</span>
+  </div>
+  <div id="bannerControls">
+    <div id="langToggle" class="banner-btn" onclick="toggleLanguage()">EN</div>
+    <div id="aboutToggle" class="banner-btn" onclick="openAbout()">关于</div>
+  </div>
+</div>
+
+<!-- 主体 -->
+<div id="main">
+  <div id="map"></div>
+
+  <!-- 数据加载中提示 -->
+  <div id="loadingMsg">载入数据中...</div>
+
+  <!-- 控制面板 -->
+  <div id="panel" style="display:none;">
+    <div class="section-label" id="searchSectionLabel">搜索工厂</div>
+    <input type="text" id="searchBox" placeholder="工厂名称、城市或行业...">
+    <div id="searchResults"></div>
+    <div id="selectedTags"></div>
+    <div class="legend-section">
+      <div class="section-label" id="legendSectionLabel">联系类型</div>
+      <div class="legend-item" data-type="AID" onclick="toggleType('AID',this)">
+        <div class="legend-line-wrap">
+          <div class="legend-line-bg" style="background:#b85c20"></div>
+          <div class="legend-dot-anim" style="background:#e88040; animation-delay:0s"></div>
+        </div>
+        <span class="legend-label" data-key="AID">援助</span>
+      </div>
+      <div class="legend-item" data-type="RELOCATE" onclick="toggleType('RELOCATE',this)">
+        <div class="legend-line-wrap">
+          <div class="legend-line-bg" style="background:#2a5a8a"></div>
+          <div class="legend-dot-anim" style="background:#4a8ac0; animation-delay:0.4s"></div>
+        </div>
+        <span class="legend-label" data-key="RELOCATE">搬迁</span>
+      </div>
+      <div class="legend-item" data-type="CONVERT" onclick="toggleType('CONVERT',this)">
+        <div class="legend-line-wrap">
+          <div class="legend-line-bg" style="background:#2a6a3a"></div>
+          <div class="legend-dot-anim" style="background:#4a9a5a; animation-delay:0.8s"></div>
+        </div>
+        <span class="legend-label" data-key="CONVERT">转设（含收购）</span>
+      </div>
+    </div>
+    <button id="showAllBtn" onclick="toggleShowAll()">显示全部联系</button>
+    <div class="hint" id="hintText">点击地图上的工厂可查看其联系网络<br>可同时选择多个工厂进行对比</div>
+  </div>
+</div>
+
+<!-- 时间轴 -->
+<div id="timeBar">
+  <span id="yearLabel">年份</span>
+  <span id="yearDisplay">1950</span>
+  <div id="sliderWrap">
+    <input type="range" id="yearSlider" min="1950" max="2025" value="1950" step="1">
+    <div id="yearTicks"></div>
+  </div>
+</div>
+
+<!-- 关于弹窗 -->
+<div id="aboutOverlay" onclick="closeAboutIfBackdrop(event)">
+  <div id="aboutModal">
+    <button id="aboutClose" onclick="closeAbout()">&times;</button>
+    <div id="aboutTitle"></div>
+    <div id="aboutBody"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════
+// 刻度生成
+// ════════════════════════════════════
+(function buildTicks() {
+  var container = document.getElementById('yearTicks');
+  for (var y = 1950; y <= 2025; y++) {
+    var span = document.createElement('span');
+    span.className = 'tick';
+    span.textContent = (y % 5 === 0) ? y : '';
+    container.appendChild(span);
+  }
+})();
+
+function updateSliderTrack(val) {
+  var pct = ((val - 1950) / (2025 - 1950) * 100).toFixed(1);
+  document.getElementById('yearSlider').style.background =
+    'linear-gradient(to right, #c8a070 0%, #7a2e14 ' + pct +
+    '%, #d0c8b8 ' + pct + '%)';
+}
+
+
+// ════════════════════════════════════
+// 1. 地图初始化
+// ════════════════════════════════════
+var map = L.map('map', { zoomControl: false }).setView([28.5, 104.8], 6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 18, attribution: ''
+}).addTo(map);
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+map.createPane('factoryPane');
+map.getPane('factoryPane').style.zIndex = 450;
+
+// ════════════════════════════════════
+// 2. 多语言配置
+// ════════════════════════════════════
+var currentLang = 'zh';
+
+var i18n = {
+  zh: {
+    searchLabel: '搜索工厂',
+    searchPlaceholder: '工厂名称、城市或行业...',
+    legendLabel: '联系类型',
+    showAllBtn: '显示全部联系',
+    hideAllBtn: '关闭全部显示',
+    hint: '点击地图上的工厂可查看其联系网络<br>可同时选择多个工厂进行对比',
+    loading: '载入数据中...',
+    loadError: '数据加载失败，请确认通过 Live Server 运行，且 data/ 文件夹存在。',
+    yearLabel: '年份',
+    popupCity: '城市',
+    popupFounded: '建立',
+    popupIndustry: '行业',
+    popupAlias: '别名',
+    popupType: '类型',
+    popupYear: '年份',
+    aboutBtn: '关于',
+    aboutTitle: '关于本项目',
+    aboutBody: '本项目以交互式地图的方式映射了与成都的三线建设项目有关的建设/搬迁/转设，展示了中国西南在冷战语境下如何和更广泛的国家军事工业项目形成地理上的联系。\n本项目的选择标准是任何和作为行政区的成都产生以上三种关系之一及以上的工厂都被纳入本项目。\n本项目的负责人是英国威斯敏斯特大学的Zhongxiao Hu PhD Candidate',
+  },
+  en: {
+    searchLabel: 'Search Factories',
+    searchPlaceholder: 'Name, city, or industry...',
+    legendLabel: 'Connection Types',
+    showAllBtn: 'Show All Connections',
+    hideAllBtn: 'Hide All Connections',
+    hint: 'Click a factory on the map to see its network<br>Select multiple factories to compare',
+    loading: 'Loading data...',
+    loadError: 'Failed to load data. Please confirm you are running this via Live Server and that the data/ folder exists.',
+    yearLabel: 'Year',
+    popupCity: 'City',
+    popupFounded: 'Founded',
+    popupIndustry: 'Industry',
+    popupAlias: 'Alt. Names',
+    popupType: 'Type',
+    popupYear: 'Year',
+    aboutBtn: 'About',
+    aboutTitle: 'About This Project',
+    aboutBody: "This project maps, through an interactive form, the aid/support, relocation, and conversion related to Chengdu's Third Front construction projects, demonstrating how China's southwest formed geographical connections with broader national military-industrial projects in the context of the Cold War.\nThe selection criteria for this project are: any factory that has one or more of the above three types of relationships with Chengdu as an administrative region is included in this project.\nThe project is led by Zhongxiao Hu, PhD Candidate at the University of Westminster in the United Kingdom.",
+  }
+};
+
+// 界面固定文案取值
+function t(key) { return i18n[currentLang][key]; }
+
+// 数据字段取值：优先取 <field>_en（若存在且当前为英文），否则回退原字段
+// 对 factories.json / relations.json 中任何对象都适用
+function tf(obj, field) {
+  if (currentLang === 'en') {
+    var v = obj[field + '_en'];
+    if (v) return v;
+  }
+  return obj[field];
+}
+
+// 别名数组同理：优先 alias_en，回退 alias
+function getAlias(f) {
+  if (currentLang === 'en' && f.alias_en && f.alias_en.length) return f.alias_en;
+  return f.alias || [];
+}
+
+// 联系类型：中文原始标签 -> 规范内部键（页面逻辑、颜色映射、Set 一律用这套键，
+// 不受语言影响；data/relations.json 里的中文 type 字段无需改动，加载时自动转换）
+var TYPE_KEY_MAP = { '援助': 'AID', '搬迁': 'RELOCATE', '转设': 'CONVERT' };
+var typeLabels = {
+  zh: { AID: '援助', RELOCATE: '搬迁', CONVERT: '转设（含收购）' },
+  en: { AID: 'Aid / Support', RELOCATE: 'Relocation', CONVERT: 'Conversion (incl. acquisition)' },
+};
+
+
+// ════════════════════════════════════
+// 3. 状态变量
+// ════════════════════════════════════
+var factories = [];
+var relations = [];
+var factoryMap = {};
+var markerRefs = {};
+var selectedIds = new Set();
+var activeTypes = new Set(['AID', 'RELOCATE', 'CONVERT']);
+var showAll = false;
+var currentYear = 1950;
+
+var typeColors = {
+  AID:      { line: '#b85c20', dot: '#e88040', glow: 'rgba(184,92,32,0.5)' },
+  RELOCATE: { line: '#2a5a8a', dot: '#4a8ac0', glow: 'rgba(42,90,138,0.5)' },
+  CONVERT:  { line: '#2a6a3a', dot: '#4a9a5a', glow: 'rgba(42,106,58,0.5)' },
+};
+
+// 节点半径（缩小版）
+var RADIUS_DEFAULT  = 4;
+var RADIUS_HOVER    = 5.5;
+var RADIUS_SELECTED = 6.5;
+var WEIGHT_DEFAULT  = 1.2;
+var WEIGHT_SELECTED = 0;
+
+// 节点配色
+var MARKER_FILL_DEFAULT    = '#6b4a26';
+var MARKER_BORDER_DEFAULT  = '#a68a5c';
+var MARKER_FILL_SELECTED   = '#7a2e14';
+var MARKER_GLOW = 'rgba(122,46,20,0.6)';
+
+
+// ════════════════════════════════════
+// 4. 加载数据（fetch 并行读取两个 JSON）
+// ════════════════════════════════════
+Promise.all([
+  fetch('data/factories.json').then(function(r) { return r.json(); }),
+  fetch('data/relations.json').then(function(r) { return r.json(); })
+]).then(function(results) {
+  factories = results[0];
+  relations = results[1];
+
+  // 联系类型：中文原始值转换为规范键，转换一次即可，后续全部按键处理
+  relations.forEach(function(r) {
+    if (TYPE_KEY_MAP[r.type]) r.type = TYPE_KEY_MAP[r.type];
+  });
+
+  // 建立 id 索引
+  factories.forEach(function(f) { factoryMap[f.id] = f; });
+
+  // 数据加载完成，隐藏提示，显示面板
+  document.getElementById('loadingMsg').style.display = 'none';
+  document.getElementById('panel').style.display = 'block';
+
+  // 初始化节点
+  initMarkers();
+  updateLines();
+
+}).catch(function(err) {
+  document.getElementById('loadingMsg').textContent = t('loadError');
+  console.error(err);
+});
+
+
+// ════════════════════════════════════
+// 5. 工厂节点
+// ════════════════════════════════════
+function buildFactoryPopupHTML(f) {
+  var aliasArr = getAlias(f);
+  var sep = (currentLang === 'en') ? ', ' : '、';
+  var aliasRow = aliasArr.length ?
+    '<span class="popup-label">' + t('popupAlias') + '</span><span class="popup-value">' + aliasArr.join(sep) + '</span>' : '';
+  var yearSuffix = (currentLang === 'zh') ? ' 年' : '';
+
+  return '<div class="popup-name">' + tf(f, 'name') + '</div>' +
+    '<div class="popup-grid">' +
+      '<span class="popup-label">' + t('popupCity') + '</span><span class="popup-value">' + tf(f, 'city') + '</span>' +
+      '<span class="popup-label">' + t('popupFounded') + '</span><span class="popup-value">' + f.founded + yearSuffix + '</span>' +
+      '<span class="popup-label">' + t('popupIndustry') + '</span><span class="popup-value">' + tf(f, 'industry') + '</span>' +
+      aliasRow +
+    '</div>' +
+    '<div class="popup-desc">' + tf(f, 'brief') + '</div>';
+}
+
+function initMarkers() {
+  factories.forEach(function(f) {
+    var marker = L.circleMarker(f.coords, {
+      radius: RADIUS_DEFAULT,
+      fillColor: MARKER_FILL_DEFAULT,
+      color: MARKER_BORDER_DEFAULT,
+      weight: WEIGHT_DEFAULT,
+      fillOpacity: 1,
+      pane: 'factoryPane',
+    }).addTo(map);
+
+    marker._factoryId = f.id;
+    marker.on('mouseover', function() {
+      if (selectedIds.has(this._factoryId)) return;
+      this.setStyle({ radius: RADIUS_HOVER, });
+      var el = this.getElement();
+      if (el) el.style.filter = 'drop-shadow(0 0 4px ' + MARKER_GLOW + ')';
+    });
+    marker.on('mouseout', function() {
+      if (selectedIds.has(this._factoryId)) return;
+      this.setStyle({ radius: RADIUS_DEFAULT });
+      var el = this.getElement();
+      if (el) el.style.filter = '';
+    });
+
+    // 用函数而非字符串绑定：每次弹出时才现算内容，语言切换后自动生效，
+    // 不需要遍历所有 marker 重新 bindPopup
+    marker.bindPopup(function() { return buildFactoryPopupHTML(f); }, { maxWidth: 280 });
+
+    marker.on('click', function(e) {
+      L.DomEvent.stopPropagation(e);
+      toggleFactory(f.id, marker);
+    });
+
+    markerRefs[f.id] = marker;
+  });
+}
+
+
+// ════════════════════════════════════
+// 6. 选厂逻辑
+// ════════════════════════════════════
+function toggleFactory(id, marker) {
+  if (selectedIds.has(id)) {
+    selectedIds.delete(id);
+    marker.setStyle({ fillColor: MARKER_FILL_DEFAULT, color: MARKER_BORDER_DEFAULT,
+                      weight: WEIGHT_DEFAULT, radius: RADIUS_DEFAULT });
+    var el = marker.getElement();
+    if (el) { el.classList.remove('marker-selected-glow'); el.style.filter = ''; }
+  } else {
+    selectedIds.add(id);
+    marker.setStyle({ fillColor: MARKER_FILL_SELECTED,
+                      weight: WEIGHT_SELECTED, radius: RADIUS_SELECTED });
+    var el2 = marker.getElement();
+    if (el2) el2.classList.add('marker-selected-glow');
+  }
+  renderTags();
+  updateLines();
+}
+
+function selectFactory(id) {
+  if (selectedIds.has(id)) return;
+  selectedIds.add(id);
+  var m = markerRefs[id];
+  if (m) {
+    m.setStyle({ fillColor: MARKER_FILL_SELECTED, 
+                 weight: WEIGHT_SELECTED, radius: RADIUS_SELECTED });
+    var el = m.getElement();
+    if (el) el.classList.add('marker-selected-glow');
+  }
+  renderTags();
+  updateLines();
+}
+
+function deselectFactory(id) {
+  selectedIds.delete(id);
+  var m = markerRefs[id];
+  if (m) {
+    m.setStyle({ fillColor: MARKER_FILL_DEFAULT, color: MARKER_BORDER_DEFAULT,
+                 weight: WEIGHT_DEFAULT, radius: RADIUS_DEFAULT });
+    var el = m.getElement();
+    if (el) { el.classList.remove('marker-selected-glow'); el.style.filter = ''; }
+  }
+  renderTags();
+  updateLines();
+}
+
+function renderTags() {
+  var container = document.getElementById('selectedTags');
+  container.innerHTML = '';
+  selectedIds.forEach(function(id) {
+    var f = factoryMap[id];
+    if (!f) return;
+    var tag = document.createElement('div');
+    tag.className = 'tag';
+    tag.innerHTML = tf(f, 'name') +
+      '<span class="tag-remove" onclick="deselectFactory(\'' + id + '\')">x</span>';
+    container.appendChild(tag);
+  });
+}
+
+
+// ════════════════════════════════════
+// 7. 偏移计算
+// ════════════════════════════════════
+function getOffsetCoords(fromLatLng, toLatLng, offsetPx) {
+  var p1 = map.latLngToLayerPoint(fromLatLng);
+  var p2 = map.latLngToLayerPoint(toLatLng);
+  var dx = p2.x - p1.x, dy = p2.y - p1.y;
+  var len = Math.sqrt(dx * dx + dy * dy);
+  if (len < 1) return [fromLatLng, toLatLng];
+  var nx = -dy / len * offsetPx, ny = dx / len * offsetPx;
+  return [
+    map.layerPointToLatLng(L.point(p1.x + nx, p1.y + ny)),
+    map.layerPointToLatLng(L.point(p2.x + nx, p2.y + ny)),
+  ];
+}
+
+function hasBidirectional(rel) {
+  return relations.some(function(r) {
+    return r.from === rel.to && r.to === rel.from && r.year <= currentYear;
+  });
+}
+
+
+// ════════════════════════════════════
+// 8. 动态感应宽度
+// ════════════════════════════════════
+function getHitWidth() {
+  var zoom = map.getZoom();
+  if (zoom <= 6) return 6;
+  if (zoom <= 9) return 10;
+  return 14;
+}
+
+
+// ════════════════════════════════════
+// 9. 流动光点 + 悬停发光
+// ════════════════════════════════════
+var lineLayer = L.layerGroup().addTo(map);
+var animFrames = [];
+
+function createFlowLine(coords, relData, opacityMult) {
+  var colors = typeColors[relData.type] ||
+    { line: '#888', dot: '#aaa', glow: 'rgba(128,128,128,0.4)' };
+
+  // 上层：显示线
+  var visLine = L.polyline(coords, {
+    color: colors.line,
+    weight: 1.8,
+    opacity: 0.65 * opacityMult,
+  });
+
+  // 底层：透明宽线捕捉鼠标
+  var hitLine = L.polyline(coords, {
+    color: 'transparent',
+    weight: getHitWidth(),
+    opacity: 1,
+  });
+
+  function buildRelationPopupHTML() {
+    var fromName = tf(factoryMap[relData.from], 'name');
+    var toName = tf(factoryMap[relData.to], 'name');
+    var yearSuffix = (currentLang === 'zh') ? ' 年' : '';
+    return '<div class="popup-name" style="font-size:13px">' +
+        fromName + ' &rarr; ' + toName +
+      '</div>' +
+      '<div class="popup-grid">' +
+        '<span class="popup-label">' + t('popupType') + '</span><span class="popup-value">' + typeLabels[currentLang][relData.type] + '</span>' +
+        '<span class="popup-label">' + t('popupYear') + '</span><span class="popup-value">' + relData.year + yearSuffix + '</span>' +
+      '</div>' +
+      '<div class="popup-desc">' + tf(relData, 'desc') + '</div>';
+  }
+
+  hitLine.bindPopup(buildRelationPopupHTML, { maxWidth: 260 });
+
+  hitLine.on('mouseover', function() {
+    visLine.setStyle({ weight: 3.5, opacity: 1 });
+    var el = visLine.getElement();
+    if (el) {
+      el.style.filter =
+        'drop-shadow(0 0 4px ' + colors.glow + ') ' +
+        'drop-shadow(0 0 8px ' + colors.glow + ')';
+    }
+  });
+
+  hitLine.on('mouseout', function() {
+    visLine.setStyle({ weight: 1.8, opacity: 0.65 * opacityMult });
+    var el = visLine.getElement();
+    if (el) el.style.filter = '';
+  });
+
+  lineLayer.addLayer(visLine);
+  lineLayer.addLayer(hitLine);
+
+  // 流动光点
+  var dot = L.circleMarker(coords[0], {
+    radius: 3.5, fillColor: colors.dot,
+    color: 'transparent', fillOpacity: 0, weight: 0,
+  });
+  lineLayer.addLayer(dot);
+
+  var duration = 2800 + Math.random() * 800;
+  var startTime = performance.now() - Math.random() * duration;
+
+  function animate(now) {
+    var t = ((now - startTime) % duration) / duration;
+    dot.setLatLng([
+      coords[0].lat + (coords[1].lat - coords[0].lat) * t,
+      coords[0].lng + (coords[1].lng - coords[0].lng) * t,
+    ]);
+    var alpha = t < 0.08 ? t / 0.08 : t > 0.92 ? (1 - t) / 0.08 : 1;
+    dot.setStyle({ fillOpacity: alpha * 0.95 * opacityMult });
+    animFrames.push(requestAnimationFrame(animate));
+  }
+  animFrames.push(requestAnimationFrame(animate));
+}
+
+function cancelAllAnimations() {
+  animFrames.forEach(function(id) { cancelAnimationFrame(id); });
+  animFrames = [];
+}
+
+
+// ════════════════════════════════════
+// 10. 主渲染
+// ════════════════════════════════════
+function updateLines() {
+  cancelAllAnimations();
+  lineLayer.clearLayers();
+
+  var toShow = relations.filter(function(rel) {
+    if (rel.year > currentYear) return false;
+    if (!activeTypes.has(rel.type)) return false;
+    if (showAll) return true;
+    return selectedIds.has(rel.from) || selectedIds.has(rel.to);
+  });
+
+  if (!toShow.length) return;
+  var opacityMult = (showAll && selectedIds.size === 0) ? 0.45 : 1;
+
+  toShow.forEach(function(rel) {
+    var fromF = factoryMap[rel.from], toF = factoryMap[rel.to];
+    if (!fromF || !toF) return;
+    var isBidi = hasBidirectional(rel);
+    var coords = isBidi
+      ? getOffsetCoords(L.latLng(fromF.coords), L.latLng(toF.coords), 6)
+      : [L.latLng(fromF.coords), L.latLng(toF.coords)];
+    createFlowLine(coords, rel, opacityMult);
+  });
+}
+
+
+// ════════════════════════════════════
+// 11. 交互
+// ════════════════════════════════════
+document.getElementById('yearSlider').addEventListener('input', function() {
+  currentYear = parseInt(this.value);
+  document.getElementById('yearDisplay').textContent = this.value;
+  updateSliderTrack(currentYear);
+  updateLines();
+});
+
+function toggleType(type, el) {
+  if (activeTypes.has(type)) { activeTypes.delete(type); el.classList.add('disabled'); }
+  else { activeTypes.add(type); el.classList.remove('disabled'); }
+  updateLines();
+}
+
+function updateShowAllBtnText() {
+  var btn = document.getElementById('showAllBtn');
+  btn.textContent = showAll ? t('hideAllBtn') : t('showAllBtn');
+}
+
+function toggleShowAll() {
+  showAll = !showAll;
+  var btn = document.getElementById('showAllBtn');
+  btn.classList.toggle('active', showAll);
+  updateShowAllBtnText();
+  updateLines();
+}
+
+var searchBox = document.getElementById('searchBox');
+var searchResults = document.getElementById('searchResults');
+
+searchBox.addEventListener('input', function() {
+  var q = this.value.trim();
+  if (!q) { searchResults.style.display = 'none'; return; }
+  var hits = factories.map(function(f) {
+    var matchedAlias = null;
+    getAlias(f).some(function(a) {
+      if (a.indexOf(q) >= 0) { matchedAlias = a; return true; }
+      return false;
+    });
+    var matched = tf(f, 'name').indexOf(q) >= 0 || tf(f, 'city').indexOf(q) >= 0 ||
+                  tf(f, 'industry').indexOf(q) >= 0 || matchedAlias;
+    return matched ? { f: f, matchedAlias: matchedAlias } : null;
+  }).filter(Boolean);
+  searchResults.innerHTML = '';
+  if (!hits.length) { searchResults.style.display = 'none'; return; }
+  hits.forEach(function(hit) {
+    var f = hit.f;
+    var item = document.createElement('div');
+    item.className = 'search-item';
+    item.textContent = tf(f, 'name') + '(' + tf(f, 'city') + ')' +
+      (hit.matchedAlias ? '  ' + t('popupAlias') + ': ' + hit.matchedAlias : '');
+    item.onclick = function() {
+      selectFactory(f.id);
+      map.panTo(f.coords);
+      searchBox.value = '';
+      searchResults.style.display = 'none';
+    };
+    searchResults.appendChild(item);
+  });
+  searchResults.style.display = 'block';
+});
+
+map.on('click', function() { searchResults.style.display = 'none'; });
+map.on('zoomend', updateLines);
+
+
+// ════════════════════════════════════
+// 12. 语言切换
+// ════════════════════════════════════
+function setLanguage(lang) {
+  currentLang = lang;
+
+  var toggleBtn = document.getElementById('langToggle');
+  if (toggleBtn) toggleBtn.textContent = (lang === 'zh') ? 'EN' : '中';
+
+  var searchLabelEl = document.getElementById('searchSectionLabel');
+  if (searchLabelEl) searchLabelEl.textContent = t('searchLabel');
+
+  var legendLabelEl = document.getElementById('legendSectionLabel');
+  if (legendLabelEl) legendLabelEl.textContent = t('legendLabel');
+
+  if (searchBox) searchBox.placeholder = t('searchPlaceholder');
+
+  var hintEl = document.getElementById('hintText');
+  if (hintEl) hintEl.innerHTML = t('hint');
+
+  var yearLabelEl = document.getElementById('yearLabel');
+  if (yearLabelEl) yearLabelEl.textContent = t('yearLabel');
+
+  updateShowAllBtnText();
+
+  var aboutBtnEl = document.getElementById('aboutToggle');
+  if (aboutBtnEl) aboutBtnEl.textContent = t('aboutBtn');
+
+  var aboutTitleEl = document.getElementById('aboutTitle');
+  if (aboutTitleEl) aboutTitleEl.textContent = t('aboutTitle');
+
+  var aboutBodyEl = document.getElementById('aboutBody');
+  if (aboutBodyEl) aboutBodyEl.textContent = t('aboutBody');
+
+  // 图例文字（类型标签）逐个更新
+  var legendLabels = document.querySelectorAll('.legend-label');
+  for (var i = 0; i < legendLabels.length; i++) {
+    var key = legendLabels[i].getAttribute('data-key');
+    legendLabels[i].textContent = typeLabels[lang][key];
+  }
+
+  // 已选工厂标签用的是当前语言的名称，需要重绘
+  renderTags();
+
+  // 打开中的弹窗内容语言不会自动刷新，直接关闭更省事
+  map.closePopup();
+}
+
+function toggleLanguage() {
+  setLanguage(currentLang === 'zh' ? 'en' : 'zh');
+}
+
+
+// ════════════════════════════════════
+// 13. 关于弹窗
+// ════════════════════════════════════
+function openAbout() {
+  document.getElementById('aboutOverlay').style.display = 'flex';
+}
+
+function closeAbout() {
+  document.getElementById('aboutOverlay').style.display = 'none';
+}
+
+// 点击遮罩空白处关闭，点击弹窗本体内部不关闭
+function closeAboutIfBackdrop(e) {
+  if (e.target.id === 'aboutOverlay') closeAbout();
+}
+
+updateSliderTrack(1950);
+setLanguage('zh');
+</script>
+</body>
+</html>

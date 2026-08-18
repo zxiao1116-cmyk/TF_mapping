@@ -1,0 +1,58 @@
+[
+  {
+    "from": "SHchaiyouji",
+    "to": "CDjinjiangOld",
+    "type": "援助",
+    "year": 1966,
+    "desc": "上海柴油机厂包建锦江油泵油嘴厂。"
+  },
+  {
+    "from": "CDjinjiangOld",
+    "to": "CDjinjiangNew",
+    "type": "搬迁",
+    "year": 1993,
+    "desc": "1993年在新都建成分厂。"
+  },
+  {
+    "from": "WXyoubengzui",
+    "to": "CDjinjiangOld",
+    "type": "援助",
+    "year": 1966,
+    "desc": "无锡油泵油嘴厂内调444人、设备279台建设锦江油泵油嘴厂。"
+  },
+  {
+    "from": "SHbaochang",
+    "to": "CDpeijianOld",
+    "type": "援助",
+    "year": 1965,
+    "desc": "上海宝昌活塞厂和上海大中华汽车材料厂内迁职工156人、设备67台，与成都柴油机厂一起，组建成都配件厂。"
+  },
+  {
+    "from": "SHdazhonghua",
+    "to": "CDpeijianOld",
+    "type": "援助",
+    "year": 1966,
+    "desc": "上海宝昌活塞厂和上海大中华汽车材料厂内迁职工156人、设备67台，与成都柴油机厂一起，组建成都配件厂。"
+  },
+  {
+    "from": "CDpeijianOld",
+    "to": "CDpeijian",
+    "type": "搬迁",
+    "year": 2002,
+    "desc": "2002年被列入四川省重大项目的异地搬迁技术改造项目。"
+  },
+  {
+    "from": "TJneiranji",
+    "to": "CDchuanchi",
+    "type": "援助",
+    "year": 1964,
+    "desc": "天津内燃机齿轮厂内迁340人，设备105台。"
+  },
+  {
+    "from": "HZhangchi",
+    "to": "CDchuanchi",
+    "type": "援助",
+    "year": 1964,
+    "desc": "杭州齿轮箱厂包建。"
+  }
+]
