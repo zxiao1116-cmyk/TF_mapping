@@ -670,6 +670,7 @@ Promise.all([
 
   // 初始化节点
   initMarkers();
+  updateMarkers();
   updateLines();
 
 }).catch(function(err) {
@@ -707,8 +708,17 @@ function initMarkers() {
       weight: WEIGHT_DEFAULT,
       fillOpacity: 1,
       pane: 'factoryPane',
-    }).addTo(map);
-
+    });
+function updateMarkers() {
+  factories.forEach(function(f) {
+    var m = markerRefs[f.id];
+    if (!m) return;
+    var shouldShow = f.founded <= currentYear;
+    var isShown = map.hasLayer(m);
+    if (shouldShow && !isShown) m.addTo(map);
+    else if (!shouldShow && isShown) map.removeLayer(m);
+  });
+}
     marker._factoryId = f.id;
     marker.on('mouseover', function() {
       if (selectedIds.has(this._factoryId)) return;
@@ -958,6 +968,7 @@ document.getElementById('yearSlider').addEventListener('input', function() {
   currentYear = parseInt(this.value);
   document.getElementById('yearDisplay').textContent = this.value;
   updateSliderTrack(currentYear);
+  updateMarkers();
   updateLines();
 });
 
