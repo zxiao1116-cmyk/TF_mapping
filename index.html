@@ -709,16 +709,7 @@ function initMarkers() {
       fillOpacity: 1,
       pane: 'factoryPane',
     });
-function updateMarkers() {
-  factories.forEach(function(f) {
-    var m = markerRefs[f.id];
-    if (!m) return;
-    var shouldShow = f.founded <= currentYear;
-    var isShown = map.hasLayer(m);
-    if (shouldShow && !isShown) m.addTo(map);
-    else if (!shouldShow && isShown) map.removeLayer(m);
-  });
-}
+
     marker._factoryId = f.id;
     marker.on('mouseover', function() {
       if (selectedIds.has(this._factoryId)) return;
@@ -743,6 +734,17 @@ function updateMarkers() {
     });
 
     markerRefs[f.id] = marker;
+  });
+}
+
+  function updateMarkers() {
+  factories.forEach(function(f) {
+    var m = markerRefs[f.id];
+    if (!m) return;
+    var shouldShow = f.founded <= currentYear;
+    var isShown = map.hasLayer(m);
+    if (shouldShow && !isShown) m.addTo(map);
+    else if (!shouldShow && isShown) map.removeLayer(m);
   });
 }
 
